@@ -62,6 +62,7 @@ lazy val allAggregates = core.projectRefs ++
   refined.projectRefs ++
   zio.projectRefs ++
   newtype.projectRefs ++
+  monixBio.projectRefs ++
   circeJson.projectRefs ++
   jsoniterScala.projectRefs ++
   json4s.projectRefs ++
@@ -97,6 +98,8 @@ lazy val allAggregates = core.projectRefs ++
   vertxServer.projectRefs ++
   zioServer.projectRefs ++
   http4sClient.projectRefs ++
+  monixBioAkkaHttpServer.projectRefs ++
+  monixBioHttp4sServer.projectRefs ++
   sttpClient.projectRefs ++
   playClient.projectRefs ++
   tests.projectRefs ++
@@ -335,6 +338,18 @@ lazy val zio: ProjectMatrix = (projectMatrix in file("integrations/zio"))
       "dev.zio" %% "zio-test" % Versions.zio % Test,
       "dev.zio" %% "zio-test-sbt" % Versions.zio % Test,
       "com.softwaremill.sttp.shared" %% "zio" % Versions.sttpShared
+    )
+  )
+  .jvmPlatform(scalaVersions = allScalaVersions)
+  .dependsOn(core)
+
+lazy val monixBio: ProjectMatrix = (projectMatrix in file("integrations/monix-bio"))
+  .settings(commonSettings)
+  .settings(
+    name := "tapir-monix-bio",
+    libraryDependencies ++= Seq(
+      "io.monix" %% "monix-bio" % "1.0.0",
+      scalaTest.value % Test
     )
   )
   .jvmPlatform(scalaVersions = allScalaVersions)
@@ -795,6 +810,26 @@ lazy val zioServer: ProjectMatrix = (projectMatrix in file("server/zio-http4s-se
   )
   .jvmPlatform(scalaVersions = allScalaVersions)
   .dependsOn(zio, http4sServer, serverTests % Test)
+
+lazy val monixBioAkkaHttpServer: ProjectMatrix = (projectMatrix in file("server/monix-bio-akka-http-server"))
+  .settings(commonSettings)
+  .settings(
+    name := "tapir-monix-bio-akka-http-server",
+    libraryDependencies ++= Seq(
+      "com.typesafe.akka" %% "akka-http" % Versions.akkaHttp,
+      "com.typesafe.akka" %% "akka-stream" % Versions.akkaStreams
+    )
+  )
+  .jvmPlatform(scalaVersions = allScalaVersions)
+  .dependsOn(monixBio, akkaHttpServer, serverTests % Test)
+
+lazy val monixBioHttp4sServer: ProjectMatrix = (projectMatrix in file("server/monix-bio-http4s-server"))
+  .settings(commonSettings)
+  .settings(
+    name := "tapir-monix-bio-http4s-server"
+  )
+  .jvmPlatform(scalaVersions = allScalaVersions)
+  .dependsOn(monixBio, http4sServer, serverTests % Test)
 
 // client
 
